@@ -18,7 +18,7 @@ export class MigrateTool {
     const present = await db.collectPresentMigrations()
 
     const [currentVersion, targetVersion] = getVersionPair(present)
-    const actions = await MigrationManager.getActionsUp()
+    const actions = MigrationManager.getActionsUp()
     const pendingVersions = MigrationManager.pendingVersionsUp(currentVersion, targetVersion)
 
     if (pendingVersions.length === 0) {
