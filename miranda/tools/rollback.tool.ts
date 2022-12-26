@@ -18,7 +18,7 @@ export class RollbackTool {
     const present = await db.collectPresentMigrations()
     const [currentVersion, targetVersion] = getVersionPair(present)
 
-    const actions = await MigrationManager.getActionsDown()
+    const actions = MigrationManager.getActionsDown()
     const pendingVersions = MigrationManager.pendingVersionsDown(currentVersion, targetVersion)
 
     for (const version of pendingVersions) {
