@@ -1,5 +1,5 @@
 import { DbClient, MigrationTuple } from "../db-client.ts";
-import { Migrator } from "../migrator.ts";
+import { MigrationManager } from "../migrator.ts";
 
 
 
@@ -19,13 +19,14 @@ export class StatusTool {
     const present = await db.collectPresentMigrations()
     const tuplesByVersion = keyTuplesByVersion(present)
 
-    const migrator = await Migrator.new()
-    const files = await migrator.collectPresentFiles()
-    // console.log(files)
-    files.forEach(file => {
-      const applied = file.seq in tuplesByVersion
-      console.log(`  ${file.seq} ${applied ? '+' : '-'} ${file.label}`)
+    const actions = MigrationManager.getActionsUp()
+    const versions = Object.keys(actions).sort()
+    versions.forEach(v => {
+      const applied = v in tuplesByVersion
+      console.log(`  ${v} ${applied ? '+' : '-'} ${actions[v].label}`)
     })
+
+    // TODO: check for anomalies i.e. versions pretend in DB but absent in actions.
   }
 }
 
