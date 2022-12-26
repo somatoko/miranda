@@ -27,6 +27,7 @@ async function mergeMigrationFiles() {
   // 2. create migrator entrypoint; imports migrationsImage
   const relaseEntryName = './miranda-entry.prod.ts'
   // await Deno.writeTextFile(relaseEntryName, atob(entry))
+  prepareEntryScript(relaseEntryName)
 
   // 3. bundle entrypoint with everything else
   const releaseName = 'miranda.bundle.js'
@@ -40,4 +41,19 @@ async function mergeMigrationFiles() {
   }).status()
 
   console.log('- Ready! You can now compile ' + releaseName)
+}
+
+function prepareEntryScript(filename: string) {
+  const baseUrl = 'https://deno.land/x/miranda@0.0.2/miranda'
+  const content = `#!/usr/bin/env -S deno run --allow-net --allow-read --allow-write --allow-env --allow-run
+import { CliParser } from "${baseUrl}/cli-parser.ts";
+import { Config } from "${baseUrl}/config-loader.ts";
+import { MigrationManager } from "${baseUrl}/migrator.ts";
+import { data } from './_data.js'
+
+await Config.load(true)
+await MigrationManager.loadFromString(data)
+await CliParser.parseAndRun()
+  `
+  Deno.writeTextFileSync(filename, content)
 }
