@@ -1,3 +1,4 @@
+import { MigrationManager } from "./migrator.ts";
 import { getToolDict } from "./tools.ts";
 
 export class CliParser {
@@ -30,6 +31,11 @@ export class CliParser {
       console.log(`Error: unknown task '${name}'; exiting.`)
       Deno.exit(1)
     }
+    
+    if (['rollback', 'migrate', 'status'].includes(name)) {
+      await MigrationManager.loadFromFiles()
+    }
+    
     return await tools[name].activate()
   }
 }
