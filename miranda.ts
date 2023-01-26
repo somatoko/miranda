@@ -4,6 +4,5 @@ import { MigrationManager } from "./miranda/migrator.ts";
 
 if (import.meta.main) {
   await Config.load()
-  await MigrationManager.loadFromFiles()
   await CliParser.parseAndRun()
 }
