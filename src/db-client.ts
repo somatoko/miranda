@@ -1,5 +1,5 @@
-import { Config } from "./config-loader.ts";
 import { postgres } from './deps.ts'
+import { MirandaConfig } from "./config.ts";
 
 export type MigrationTuple = {
   id: number,
@@ -15,14 +15,21 @@ export class DbClient {
   }
 
   public async ensureMigrationTableExists() {
-    const q = `
-      CREATE TABLE IF NOT EXISTS migrations (
+    const existsQuery = `SELECT EXISTS(
+      SELECT FROM pg_tables WHERE schemaname = 'public' AND tablename = 'migrations'
+    )`
+    const result = await this._db.queryArray(existsQuery)
+
+    if (!result.rows[0]) {
+      const q = `
+      CREATE TABLE migrations (
         id serial PRIMARY KEY,
         version int,
         label VARCHAR(255),
         inserted_at TIMESTAMP NOT NULL DEFAULT NOW()
       )`
-    await this._db.queryArray(q)
+      await this._db.queryArray(q)
+    }
   }
 
   async collectPresentMigrations() {
@@ -68,7 +75,7 @@ export class DbClient {
   }
 
   static async new() {
-    const client = new postgres.Client(Config.getInstance().dbClientConf)
+    const client = new postgres.Client(MirandaConfig.getInstance().dbClientConf)
 
     try {
       await client.connect()

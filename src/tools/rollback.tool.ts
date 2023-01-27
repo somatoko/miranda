@@ -43,7 +43,7 @@ function getVersionPair(installed: MigrationTuple[]) {
   // much work because in JS '0' is false
   const versionGiven = Deno.args[1]
   let targetVersion = 0
-  if (versionGiven !== undefined) {
+  if (versionGiven !== undefined && !versionGiven.startsWith('-')) {
     const num = parseInt(versionGiven, 10)
     if (num > versionNow) {
       console.log(`- cant move to version ${num}, now at version ${versionNow}; done.`)

@@ -1,5 +1,5 @@
 import { DbClient, MigrationTuple } from "../db-client.ts";
-import { MigrationFile, MigrationManager, Migrator } from "../migrator.ts";
+import { MigrationFile, MigrationManager } from "../migrator.ts";
 
 
 export class MigrateTool {
@@ -38,7 +38,7 @@ export class MigrateTool {
 function getVersionPair(installed: MigrationTuple[]) {
   const versionGiven = Deno.args[1]
   let targetVersion = 9999
-  if (versionGiven !== undefined) {
+  if (versionGiven !== undefined && !versionGiven.startsWith('-')) {
     const num = parseInt(versionGiven, 10)
     if (num > targetVersion) {
       console.log('- Maxiumum possible version is ${targetVersion}; exiting.')
@@ -52,23 +52,4 @@ function getVersionPair(installed: MigrationTuple[]) {
   const installedVersions = installed.map(t => t.version)
   const currentVersion = Math.max(...installedVersions)
   return [currentVersion, targetVersion]
-}
-
-function keyTuplesByVersion(files: MigrationTuple[]) {
-  const entries: { [k: number]: MigrationTuple } = {}
-  files.forEach(u => entries[u.version] = u)
-  return entries
-}
-
-function keyFilesByVersion(files: MigrationFile[]) {
-  const entries: { [k: number]: MigrationFile } = {}
-  files.forEach(u => entries[u.seq] = u)
-  return entries
-}
-
-function findMaxVersion(files: MigrationFile[]) {
-  const versions = [...files]
-    .map(u => u.seq)
-    .sort((a, b) => b - a)
-  return versions[0]
 }

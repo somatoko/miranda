@@ -1,5 +1,4 @@
-import { readConfigFile } from "../config-loader.ts";
-
+import { MirandaConfig } from "../config.ts"
 
 export class CreateTool {
   static getMeta() {
@@ -31,13 +30,12 @@ export class CreateTool {
 
 
 async function createNewMigrationFile() {
-  const cfg = await readConfigFile()
-  const dir = cfg.DIR_MIGRATIONS
-  ensureDirExists(dir)
+  const dirMigrations = MirandaConfig.getDirMigrations()
+  ensureDirExists(dirMigrations)
 
   // read existing files with a pattern and extract serial numbers
   const numSet = new Set<number>([0])
-  for await (const u of Deno.readDir(dir)) {
+  for await (const u of Deno.readDir(dirMigrations)) {
     const match = u.name.match(/^(\d{4})\_/)
     if (match) {
       const num = parseInt(match[1], 10)
@@ -53,7 +51,7 @@ async function createNewMigrationFile() {
 
   const note = Deno.args[1] || 'unnamed_migration'
   const filename = `${indexSerial}_${note}.sql`
-  await Deno.writeTextFile(`${dir}/${filename}`, defaultMigrationTemplate())
+  await Deno.writeTextFile(`${dirMigrations}/${filename}`, defaultMigrationTemplate())
 
   console.log(` OK\tcreated migration file ${filename}`)
 }
@@ -62,9 +60,8 @@ function defaultMigrationTemplate() {
   return `\n\n-- < UP above / DOWN below >--\n\n`
 }
 
-async function createNewSeedFile() {
-  const cfg = await readConfigFile()
-  ensureDirExists(cfg.DIR_SEEDS)
+function createNewSeedFile() {
+  ensureDirExists(MirandaConfig.getDirSeeds())
 }
 
 function ensureDirExists(dir: string) {

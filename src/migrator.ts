@@ -1,4 +1,4 @@
-import { readConfigFile } from "./config-loader.ts";
+import { MirandaConfig } from "./config.ts";
 import { SqlData, SqlDataDict } from "./types.ts";
 
 let _actionsUp: SqlDataDict = {}
@@ -70,8 +70,12 @@ export async function loadMigrationFiles() {
 }
 
 export class Migrator {
+  private _dir: string
 
-  constructor(private _dir: string) { }
+  constructor() {
+    const cfg = MirandaConfig.getInstance()
+    this._dir = cfg.dirMigrations
+  }
 
   async collectPresentFiles() {
     const entries: MigrationFile[] = []
@@ -89,9 +93,7 @@ export class Migrator {
   }
 
   static async new() {
-    const cfg = await readConfigFile()
-
-    const migrator = new Migrator(cfg.DIR_MIGRATIONS)
+    const migrator = new Migrator()
     await migrator.collectPresentFiles()
     return migrator
   }

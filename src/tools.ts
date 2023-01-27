@@ -1,4 +1,4 @@
-import { Config } from "./config-loader.ts";
+import { MirandaConfig } from "./config.ts";
 import { BundleTool } from "./tools/bundle.tool.ts";
 import { CreateTool } from "./tools/create.tool.ts";
 import { HelpTool } from "./tools/help.tool.ts";
@@ -24,8 +24,8 @@ let _tools: ToolInterface[] | null = null
 
 export function getEnabledTools(): ToolInterface[] {
   if (!_tools) {
-    const cfg = Config.getInstance()
-    _tools = [...ALL_TOOLS].filter(t => !cfg.isProduction || t.getMeta().productionEnabled)
+    const cfg = MirandaConfig.getInstance()
+    _tools = [...ALL_TOOLS].filter(t => !cfg.inProduction || t.getMeta().productionEnabled)
   }
 
   return _tools
